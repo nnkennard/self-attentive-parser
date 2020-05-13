@@ -11,8 +11,8 @@ def remap_spans(spans, token_start, token_end, subtoken_offset):
 
   new_spans = []
   for start, end in spans:
-    new_start = subtoken_offset[token_start[start]]
-    new_end = subtoken_offset[token_end[end]]
+    new_start = subtoken_offset[token_start[start]] + token_start[start]
+    new_end = subtoken_offset[token_end[end]] + token_end[end]
     new_spans.append([new_start, new_end])
   return new_spans
 
