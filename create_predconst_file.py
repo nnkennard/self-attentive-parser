@@ -1,3 +1,4 @@
+import re
 import benepar
 import json
 import nltk
@@ -16,6 +17,8 @@ def remap_spans(spans, token_start, token_end, subtoken_offset):
     new_spans.append([new_start, new_end])
   return new_spans
 
+CONSTITUENT_PATTERN = "([\(\)]+)"
+
 def convert_example(example_line, parser):
   original_obj = json.loads(example_line)
   token_start, token_end = original_obj["bpe_maps"]
@@ -24,6 +27,37 @@ def convert_example(example_line, parser):
   spans = []
   for sentence in original_obj["token_sentences"]:
     parse = parser.parse(sentence)
+    parse_lines = str(parse).replace("\n", " ")
+    curr_seg = ""
+    segments = []
+    pos_list = []
+    tokens = []
+
+    WORD_PATTERN = "(\([^\s\(\)]+\s[^\s\(\)]+\))" # Matches (RB And)
+
+    segment_parts = re.split(WORD_PATTERN, parse_lines)
+    print("\n".join(segment_parts))
+    while segment_parts:
+      new_seg = segment_parts.pop(0)
+      if re.match(WORD_PATTERN, new_seg):
+        pos, token = new_seg[1:-1].split() # This starts and ends with ()
+        pos_list.append(pos)
+        tokens.append(token)
+        curr_seg += "*"
+        while segment_parts and re.match("^[\)]+$", segment_parts[0].strip()):
+          # Closing parens go on previous line
+          curr_seg += segment_parts.pop(0)
+        segments.append(curr_seg)
+        curr_seg = ""
+      else:
+        curr_seg += new_seg
+
+    assert len(tokens) == len(pos_list) == len(segments)
+    print("\n".join(re.sub("\s+", "", i) for i in segments))
+  
+    parse.pretty_print()
+
+    exit()
     for subtree in parse.subtrees():
       subsequence = str(subtree.flatten())[:-1].split()[1:]
       for start in range(len(sentence)):
