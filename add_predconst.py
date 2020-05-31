@@ -14,7 +14,7 @@ def conllify_parse(parse):
   pos_list = []
   tokens = []
 
-  WORD_PATTERN = "(\([^\s\(\)]+\s+[^\s\(\)]+\))" # Matches (RB And)
+  WORD_PATTERN = "(\([^\s\(\)]+[ ]+[^\s\(\)]+\))" # Matches (RB And)
 
   segment_parts = [part.strip()
                    for part in re.split(WORD_PATTERN, parse_lines)]
@@ -58,8 +58,11 @@ def add_predconst(input_file, parser):
           
       else:
         tokens = [fields[3] for fields in sentence]
-        parse = parser.parse(tokens)
-        pos_list, parse_list = conllify_parse(parse)
+        if ' ' in tokens:
+          pos_list, parse_list = ["_POS"] * len(tokens), ["_PARSE"] * len(tokens)
+        else:
+          parse = parser.parse(tokens)
+          pos_list, parse_list = conllify_parse(parse)
         for old_fields, pred_pos, pred_parse in zip(sentence, pos_list, parse_list):
           new_sentence.append(old_fields[:6] + [old_fields[-1], pred_pos, pred_parse])
         
