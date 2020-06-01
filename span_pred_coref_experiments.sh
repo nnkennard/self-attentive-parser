@@ -1,7 +1,7 @@
 DATA_HOME=$1
 source sap_ve/bin/activate
 
-for dataset in 'conll' 'preco'
+for dataset in  'preco' #'conll'
 do
   for subset in 'test' 'train' 'dev'
   do

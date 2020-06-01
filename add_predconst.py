@@ -54,7 +54,7 @@ def add_predconst(input_file, parser):
           continue
         else:
           # There are some empty sentences in PreCo
-          new_sentence.append(sentence[0][:6] + [sentence[0][-1], "_POS", "_PARSE"])
+          new_sentence.append(sentence[0][:10] + [sentence[0][-1], "_POS", "_PARSE"])
           
       else:
         tokens = [fields[3] for fields in sentence]
@@ -64,7 +64,7 @@ def add_predconst(input_file, parser):
           parse = parser.parse(tokens)
           pos_list, parse_list = conllify_parse(parse)
         for old_fields, pred_pos, pred_parse in zip(sentence, pos_list, parse_list):
-          new_sentence.append(old_fields[:6] + [old_fields[-1], pred_pos, pred_parse])
+          new_sentence.append(old_fields[:10] + [old_fields[-1], pred_pos, pred_parse])
         
         assert len(pos_list) == len(parse_list) == len(sentence)
       new_document.append(new_sentence)
